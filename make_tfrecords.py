@@ -90,6 +90,8 @@ def convert_dataset(split_name, filenames, class_names_to_ids, dataset_dir):
 
     num_per_shard = int(math.ceil(len(filenames) / float(_NUM_SHARDS)))
 
+    count = 0
+
     with tf.Graph().as_default():
         image_reader = ImageReader()
 
@@ -115,8 +117,12 @@ def convert_dataset(split_name, filenames, class_names_to_ids, dataset_dir):
                         example = dataset_utils.image_to_tfexample(image_data, b'jpg', height, width,class_id)
                         tfrecord_writer.write(example.SerializeToString())
 
+                        count += 1
+
     sys.stdout.write('\n')
+    sys.stdout.write('number of samples: {}\n'.format(count))
     sys.stdout.flush()
+
 
 
 def get_dataset_paths(dataset_root):
@@ -146,6 +152,7 @@ def run(dataset_root):
                 sys.exit(1)
 
         convert_dataset(dataset_name, image_filenames, class_names_to_ids, dataset_root)
+        print('--------------')
 
     labels_to_class_names = dict(zip(range(len(class_names)), class_names))
     dataset_utils.write_label_file(labels_to_class_names, dataset_root)
